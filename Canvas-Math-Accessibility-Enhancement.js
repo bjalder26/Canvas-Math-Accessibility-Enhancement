@@ -16,7 +16,14 @@
  * - Can be removed at any time by deleting the script from the Canvas Theme Editor
  */
 
-(function() {
+(function () {
+
+  /**
+   * Configuration: Define the expected MathJax version and polling behavior
+   */
+  const VERSION_EXPECTED = "2.7.7";
+  const POLL_INTERVAL_MS = 100;
+  const MAX_WAIT_TIME_MS = 10000;
 
   /**
    * Step 1: Remove any saved user preference for MathJax renderer
@@ -26,23 +33,39 @@
   localStorage.removeItem("MathJax-Menu-Settings");
 
   /**
-   * Step 2: Wait for MathJax to load before applying the configuration.
-   * MathJax loads asynchronously in Canvas, so we poll until it's ready.
+   * Step 2: Wait for MathJax to load and verify that it's the correct version (v2.7.7).
+   * MathJax loads asynchronously in Canvas, so we poll until it's ready or time out.
    */
-  function waitForMathJax(callback) {
-    if (window.MathJax && MathJax.Hub && MathJax.Hub.Queue) {
-      callback(); // MathJax is ready
+  function waitForMathJax(callback, startTime = Date.now()) {
+    var mj = window.MathJax;
+
+    if (
+      mj &&
+      mj.Hub &&
+      mj.Hub.Queue &&
+      typeof mj.version === "string" &&
+      mj.version === VERSION_EXPECTED
+    ) {
+      callback(); // MathJax is ready and version is correct
+    } else if (Date.now() - startTime > MAX_WAIT_TIME_MS) {
+      console.warn(
+        "[MathJax Accessibility Script] MathJax not found or unsupported version. Expected v2.7.7."
+      );
     } else {
-      setTimeout(function() {
-        waitForMathJax(callback);
-      }, 100); // retry in 100ms
+      setTimeout(function () {
+        waitForMathJax(callback, startTime);
+      }, POLL_INTERVAL_MS); // retry after delay
     }
   }
 
   /**
    * Step 3: Apply the configuration and re-render math content.
    */
-  waitForMathJax(function() {
+  waitForMathJax(function () {
+    console.log(
+      "[MathJax Accessibility Script] MathJax v2.7.7 detected. Applying HTML-CSS renderer configuration..."
+    );
+
     // Set the default renderer to HTML-CSS (screen-reader friendly)
     MathJax.Hub.Config({
       menuSettings: {
@@ -52,6 +75,10 @@
 
     // Re-render the existing math on the page
     MathJax.Hub.Queue(["Rerender", MathJax.Hub]);
+
+    console.log(
+      "[MathJax Accessibility Script] Math content re-rendered using HTML-CSS renderer."
+    );
   });
 
 })();
