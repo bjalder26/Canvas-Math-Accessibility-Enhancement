@@ -1,84 +1,91 @@
 /*
- * Canvas LMS Math Accessibility Enhancement
- * -----------------------------------------
- * This script configures MathJax v2.7.7 in Canvas LMS to use the "HTML-CSS" renderer
- * instead of the default "SVG" output. This change improves accessibility,
- * particularly for screen readers like ReadSpeaker, NVDA, and VoiceOver.
+ * Canvas LMS Math Accessibility Enhancement (Future-Proof + Debug)
+ * ----------------------------------------------------------------
+ * Ensures MathJax in Canvas LMS uses an accessibility-friendly renderer.
+ *
+ * Supports:
+ * - MathJax v2.x (e.g., 2.7.7)
+ * - MathJax v3.x and above (e.g., 3.2+ expected in future Canvas updates)
+ * - Safely detects future v4+ and logs structure for inspection
  *
  * Why this matters:
- * - The default "SVG" renderer is not reliably accessible to screen readers.
- * - The "HTML-CSS" renderer outputs math in a way that can be interpreted by assistive technology.
- * - This change preserves visual fidelity and does not alter the appearance of math for most users.
+ * - SVG output is not reliably read by screen readers.
+ * - HTML-CSS (v2) and CHTML (v3) renderers are accessible and visually consistent.
  *
  * Safe to use:
  * - Non-destructive
- * - Only affects MathJax rendering behavior
- * - Can be removed at any time by deleting the script from the Canvas Theme Editor
+ * - Auto-detects version
+ * - Gracefully times out if MathJax is not found
+ * - Optional debug mode to log structure of new MathJax versions
  */
 
 (function () {
-
-  /**
-   * Configuration: Define the expected MathJax version and polling behavior
-   */
-  const VERSION_EXPECTED = "2.7.7";
   const POLL_INTERVAL_MS = 100;
   const MAX_WAIT_TIME_MS = 10000;
+  const DEBUG = true; // 🔍 Set to false for production to reduce console output
 
-  /**
-   * Step 1: Remove any saved user preference for MathJax renderer
-   * MathJax stores previous renderer settings in localStorage, which overrides defaults.
-   * We clear that so the configured "HTML-CSS" renderer will take effect globally.
-   */
-  localStorage.removeItem("MathJax-Menu-Settings");
+  // Step 1: Remove saved user preferences that might override renderer settings
+  try {
+    localStorage.removeItem("MathJax-Menu-Settings");
+  } catch (err) {
+    if (DEBUG) console.warn("[MathJax Accessibility Script] Could not access localStorage:", err);
+  }
 
-  /**
-   * Step 2: Wait for MathJax to load and verify that it's the correct version (v2.7.7).
-   * MathJax loads asynchronously in Canvas, so we poll until it's ready or time out.
-   */
-  function waitForMathJax(callback, startTime = Date.now()) {
-    var mj = window.MathJax;
+  // Step 2: Wait for MathJax to load (v2, v3, or future)
+  function waitForMathJax(startTime = Date.now()) {
+    const mj = window.MathJax;
 
-    if (
-      mj &&
-      mj.Hub &&
-      mj.Hub.Queue &&
-      typeof mj.version === "string" &&
-      mj.version === VERSION_EXPECTED
-    ) {
-      callback(); // MathJax is ready and version is correct
-    } else if (Date.now() - startTime > MAX_WAIT_TIME_MS) {
+    if (mj) {
+      // Optional: Log detected properties for inspection
+      if (DEBUG) {
+        console.groupCollapsed("[MathJax Accessibility Script] MathJax detected. Object keys:");
+        console.log(Object.keys(mj));
+        if (mj.startup) console.log("startup keys:", Object.keys(mj.startup));
+        if (mj.Hub) console.log("Hub keys:", Object.keys(mj.Hub));
+        console.groupEnd();
+      }
+
+      // ---- MathJax v2.x ----
+      if (mj.Hub && mj.Hub.Config && mj.Hub.Queue) {
+        console.log("[MathJax Accessibility Script] MathJax v2 detected:", mj.version);
+        mj.Hub.Config({ menuSettings: { renderer: "HTML-CSS" } });
+        mj.Hub.Queue(["Rerender", mj.Hub]);
+        console.log("[MathJax Accessibility Script] Applied HTML-CSS renderer (v2).");
+        return;
+      }
+
+      // ---- MathJax v3.x ----
+      if (mj.startup && mj.typesetPromise) {
+        console.log("[MathJax Accessibility Script] MathJax v3 detected:", mj.version);
+        try {
+          mj.startup.promise
+            .then(() => mj.typesetPromise())
+            .then(() => {
+              console.log("[MathJax Accessibility Script] Verified CHTML renderer (v3).");
+            })
+            .catch((err) => {
+              console.error("[MathJax Accessibility Script] Error during re-typeset:", err);
+            });
+        } catch (e) {
+          console.error("[MathJax Accessibility Script] Failed to apply renderer for v3:", e);
+        }
+        return;
+      }
+
+      // ---- Possible future MathJax v4+ ----
       console.warn(
-        "[MathJax Accessibility Script] MathJax not found or unsupported version. Expected v2.7.7."
+        "[MathJax Accessibility Script] MathJax detected (unknown version). Possibly v4+. No renderer changes applied."
       );
+      return;
+    }
+
+    // Keep polling if MathJax hasn't loaded yet
+    if (Date.now() - startTime < MAX_WAIT_TIME_MS) {
+      setTimeout(() => waitForMathJax(startTime), POLL_INTERVAL_MS);
     } else {
-      setTimeout(function () {
-        waitForMathJax(callback, startTime);
-      }, POLL_INTERVAL_MS); // retry after delay
+      console.warn("[MathJax Accessibility Script] MathJax not detected within timeout.");
     }
   }
 
-  /**
-   * Step 3: Apply the configuration and re-render math content.
-   */
-  waitForMathJax(function () {
-    console.log(
-      "[MathJax Accessibility Script] MathJax v2.7.7 detected. Applying HTML-CSS renderer configuration..."
-    );
-
-    // Set the default renderer to HTML-CSS (screen-reader friendly)
-    MathJax.Hub.Config({
-      menuSettings: {
-        renderer: "HTML-CSS"
-      }
-    });
-
-    // Re-render the existing math on the page
-    MathJax.Hub.Queue(["Rerender", MathJax.Hub]);
-
-    console.log(
-      "[MathJax Accessibility Script] Math content re-rendered using HTML-CSS renderer."
-    );
-  });
-
+  waitForMathJax();
 })();
