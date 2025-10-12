@@ -139,3 +139,8 @@ If math fails to appear after applying the theme:
 1. Ensure no other Canvas JS customizations conflict with MathJax.  
 2. Temporarily remove this script to confirm the issue.  
 3. If the problem resolves, re-add the script and set `DEBUG = true` to capture logs.
+
+---
+
+### Test Files
+Files to test the script for MathJax v2 and v3 have been included.
