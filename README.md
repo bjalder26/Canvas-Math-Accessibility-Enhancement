@@ -23,7 +23,7 @@ The script enhances the accessibility of math content for screen readers like **
 
 - Admin access to the **Canvas Theme Editor** at the **root account** level.  
 - The JavaScript file (pick one):
-  + Presets MathJax:[`Canvas-Math-Accessibility-Enhancement.js`](mathjax-accessibility.js)
+  + Presets MathJax:[`mathjax-accessibility.js`](mathjax-accessibility.js)
   + Rerenders after MathJax loads: [`Canvas-Math-Accessibility-Enhancement.js`](Canvas-Math-Accessibility-Enhancement.js)
 
 ---
