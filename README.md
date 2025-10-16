@@ -1,19 +1,35 @@
 # 📘 Applying the Math Accessibility Enhancement Script
 
-This guide walks you through uploading and applying the **`mathjax-accessibility.js`** OR **`Canvas-Math-Accessibility-Enhancement.js`** file to your Canvas LMS instance.  
-The script enhances the accessibility of math content for screen readers like **ReadSpeaker**, **NVDA**, and **VoiceOver** — both now and after future MathJax updates.
+This guide walks you through uploading and applying the **`mathjax-accessibility.js`** or **`Canvas-Math-Accessibility-Enhancement.js`** file to your Canvas LMS instance.  
+These scripts improve the **screen reader accessibility** of MathJax-rendered equations for tools like **ReadSpeaker**, **NVDA**, and **VoiceOver** — both now and in future MathJax versions.
 
 ---
 
-## ✅ What the Script Does
+## ✅ What the Scripts Do
 
-- Detects and supports **MathJax v2.x** (currently in Canvas) and **v3.x+** (future versions).  
-- Forces MathJax to use an **accessibility-friendly renderer**:
-  - **HTML-CSS** for v2.x  
-  - **CHTML** for v3.x  
-- Automatically detects **future versions (v4+)** and logs details for future compatibility.  
-- Makes mathematical expressions **readable by screen readers** without changing how they look.  
-- Fully **safe**, **reversible**, and **non-destructive**.
+Both versions ensure MathJax uses the most **accessibility-friendly renderer** available:
+
+| MathJax Version | Renderer Enforced | Effect |
+|-----------------|------------------|---------|
+| v2.x (Canvas default) | **HTML-CSS** | Improves screen reader compatibility |
+| v3.x+ | **CHTML** | Maintains accessibility in new versions |
+| Future (v4+) | Detected, logged, and safely ignored | Prevents crashes |
+
+### 🧩 Shared Features
+- Automatically detects MathJax (v2 → v4+).  
+- Enhances math **readability by screen readers** without changing visual appearance.  
+- Adds **console logs** (when `DEBUG = true`) for verification and future debugging.  
+- Fully **non-destructive**, **safe**, and **reversible**.  
+- Complies with **WCAG 2.1** accessibility standards.
+
+---
+
+## 🧭 Choosing the Right Script
+
+| Script | When to Use | Description |
+|--------|--------------|-------------|
+| **`mathjax-accessibility.js`** | 🟢 *Recommended for root themes* | Loads **before** MathJax initializes, allowing configuration **before rendering starts**. Future-proof and production-ready. |
+| **`Canvas-Math-Accessibility-Enhancement.js`** | 🧩 *Fallback for course-level or delayed loading* | Runs **after** MathJax loads and **re-renders** math content. Best for testing or environments where pre-load scripts are not guaranteed. |
 
 ---
 
@@ -21,10 +37,10 @@ The script enhances the accessibility of math content for screen readers like **
 
 ### 🔐 Prerequisites
 
-- Admin access to the **Canvas Theme Editor** at the **root account** level.  
-- The JavaScript file (pick one):
-  + Presets MathJax:[`mathjax-accessibility.js`](mathjax-accessibility.js)
-  + Rerenders after MathJax loads: [`Canvas-Math-Accessibility-Enhancement.js`](Canvas-Math-Accessibility-Enhancement.js)
+- **Admin access** to the **Canvas Theme Editor** at the **root account** level.  
+- Either of the following JavaScript files:
+  - [`mathjax-accessibility.js`](mathjax-accessibility.js) – *preferred pre-load version*  
+  - [`Canvas-Math-Accessibility-Enhancement.js`](Canvas-Math-Accessibility-Enhancement.js) – *post-load fallback version*
 
 ---
 
@@ -46,16 +62,17 @@ The script enhances the accessibility of math content for screen readers like **
 
 ### 3. Go to the Upload Tab
 
-1. In the Theme Editor, click the **Upload** tab.  
-2. Scroll down to the **JavaScript** section.
+1. Click the **Upload** tab in the Theme Editor.  
+2. Scroll to the **JavaScript** section.
 
 ---
 
 ### 4. Upload the Script
 
 1. Click **Choose File** under the JavaScript section.  
-2. Select the file:  
-   `Canvas-Math-Accessibility-Enhancement.js`  
+2. Select **one** of the following:
+   - `mathjax-accessibility.js` *(preferred)*  
+   - `Canvas-Math-Accessibility-Enhancement.js` *(fallback)*  
 3. Click **Upload**.
 
 ---
@@ -64,84 +81,85 @@ The script enhances the accessibility of math content for screen readers like **
 
 1. Click **Preview Your Changes**.  
 2. Navigate to a Canvas page containing LaTeX or math expressions.  
-3. Open your browser’s **Developer Console** (press **F12** or **Ctrl+Shift+I**).  
+3. Open your browser’s **Developer Console** (`F12` or `Ctrl+Shift+I`).  
 4. Confirm:
-   - ✅ Console logs show detection of MathJax v2 or v3 (or v4+ in future).  
-   - ✅ Equations render the same visually.  
-   - ✅ Screen readers like **ReadSpeaker** can read them aloud correctly.
+   - ✅ Logs show MathJax detected (v2.x, v3.x, or v4+).  
+   - ✅ Renderer applied: “HTML-CSS” (v2) or “CHTML” (v3+).  
+   - ✅ Equations look unchanged but are now **readable by screen readers**.
 
-> 🧩 If **Debug Mode** is enabled in the script (`const DEBUG = true`),  
-> you’ll also see internal MathJax object keys logged — helpful for future Canvas updates.
+> 🧠 Enable Debug Mode (`const DEBUG = true`) to display internal MathJax object keys.  
+> This is useful for diagnosing future version changes (e.g., MathJax v4+).
 
 ---
 
 ### 6. Apply the Theme
 
-- When satisfied, click **Apply Theme** in the top-right corner.  
-- The updated script will now apply across your entire Canvas instance.
+- When satisfied, click **Apply Theme** in the upper right corner.  
+- The script is now active across your **entire Canvas instance**.
 
 ---
 
 ## 🔁 To Remove or Revert
 
-1. Go back to the **Theme Editor**.  
-2. Remove the `Canvas-Math-Accessibility-Enhancement.js` file from the JavaScript section.  
-3. Click **Apply Theme** again.
+1. Return to **Theme Editor → Upload**.  
+2. Remove the `mathjax-accessibility.js` or `Canvas-Math-Accessibility-Enhancement.js` file.  
+3. Click **Apply Theme** again to revert.
 
 ---
 
 ## 💡 Additional Notes
 
-- The script affects **only MathJax rendering**, not any other page content or style.  
-- Improves compliance with **WCAG 2.1** accessibility standards.  
-- Has **no visual or performance impact** for sighted users.  
-- Logs are visible only in the **browser console** (safe for production).  
-- Optional **Debug Mode** can be turned on by setting `DEBUG = true` in the script  
-  to inspect new MathJax versions (v4+) when Canvas updates.
+- The script only affects **MathJax rendering**, never other Canvas elements or CSS.  
+- Does **not** slow page loads or alter math appearance.  
+- Improves compliance with **WCAG 2.1 (A/AA)** standards.  
+- Logs are **local only** — nothing is transmitted externally.  
+- Supports both **Classic Canvas** and **New UI (2025+)** themes.
 
 ---
 
 ## 🧪 Testing with Screen Readers
 
-To test the improvement:
+To verify the improvement:
 
-1. Open a Canvas page with math content.  
-2. Activate **ReadSpeaker**, **NVDA**, or **VoiceOver**.  
-3. ✅ Confirm the math expressions are now spoken aloud correctly.
+1. Open a Canvas page with mathematical content.  
+2. Start **ReadSpeaker**, **NVDA**, or **VoiceOver**.  
+3. ✅ Confirm the math is now **spoken correctly and sequentially**, not skipped.
 
 ---
 
 ## 🧰 Troubleshooting
 
 ### ⚠️ MathJax Not Detected
-If you see this console message:
-[MathJax Accessibility Script] MathJax not detected within timeout.
+**Console message:**  
+`[MathJax Accessibility Script] MathJax not detected within timeout.`
 
-It means the page didn’t load MathJax within the expected time.  
-Try refreshing the page or testing in a Canvas course page that contains math content.
-
----
-
-### ⚠️ "Unknown Version (Possibly v4+)"
-If you see:
-[MathJax Accessibility Script] MathJax detected (unknown version). Possibly v4+. No renderer changes applied.
-
-Canvas may have upgraded to a newer MathJax version.  
-You can:
-1. Set `const DEBUG = true` in the script.
-2. Reload the page.
-3. Check the console for a list of detected object keys.  
-   This helps determine how MathJax’s API has changed.
+**Cause:** Page didn’t load MathJax (or loaded it asynchronously).  
+**Fix:** Refresh the page or test on a Canvas page known to contain equations.
 
 ---
 
-### ⚙️ Equations Stop Rendering
-If math fails to appear after applying the theme:
-1. Ensure no other Canvas JS customizations conflict with MathJax.  
-2. Temporarily remove this script to confirm the issue.  
-3. If the problem resolves, re-add the script and set `DEBUG = true` to capture logs.
+### ⚠️ Unknown Version (Possibly v4+)
+**Console message:**  
+`[MathJax Accessibility Script] MathJax detected (unknown version). Possibly v4+. No renderer changes applied.`
+
+**Cause:** Canvas upgraded MathJax to a new major version.  
+**Fix:**  
+1. Set `DEBUG = true` in the script.  
+2. Reload and note the logged object keys.  
+3. Send the keys to your accessibility or IT team to verify compatibility.
 
 ---
 
-### Test Files
-Files to test the script for MathJax v2 and v3 have been included.
+### ⚙️ Equations Not Rendering
+1. Ensure no other custom JavaScript overrides MathJax configuration.  
+2. Temporarily remove this script to confirm the source of the conflict.  
+3. If fixed, re-add the script and enable Debug Mode to investigate.
+
+---
+
+## 🧩 Test Files
+Sample MathJax test pages for **v2** and **v3** are provided for verification of the `Canvas-Math-Accessibility-Enhancement.js` file.
+
+---
+ 
+**Last Updated:** October 2025  
