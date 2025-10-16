@@ -1,6 +1,6 @@
 # 📘 Applying the Math Accessibility Enhancement Script
 
-This guide walks you through uploading and applying the **`Canvas-Math-Accessibility-Enhancement.js`** file to your Canvas LMS instance.  
+This guide walks you through uploading and applying the **`mathjax-accessibility.js`** OR **`Canvas-Math-Accessibility-Enhancement.js`** file to your Canvas LMS instance.  
 The script enhances the accessibility of math content for screen readers like **ReadSpeaker**, **NVDA**, and **VoiceOver** — both now and after future MathJax updates.
 
 ---
